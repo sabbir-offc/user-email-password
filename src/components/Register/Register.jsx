@@ -1,31 +1,76 @@
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import auth from "../firebase/firebase";
+import { useState } from "react";
 const Register = () => {
+  const [user, setUser] = useState(null);
+  const handleRegister = (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    // console.log(email, password);
+    // create user
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const creatdUser = userCredential.user;
+        setUser(creatdUser);
+      })
+      .catch((error) => console.log(error));
+  };
+  console.log(user);
   return (
     <div>
-      <h2 className="text-3xl mb-5">Please Register</h2>
-      <div className="mx-auto p-4 border w-full">
-        <form>
-          <input
-            className="px-4 py-3 mb-3 text-black dark:text-white font-medium text-lg rounded-lg border border-lime-500 w-3/4"
-            type="email"
-            placeholder="Enter your email."
-            name=""
-            id=""
-          />
-          <br />
-          <input
-            className="px-4 py-3 mb-3 text-black dark:text-white font-medium text-lg rounded-lg border border-lime-500 w-3/4"
-            type="password"
-            placeholder="Enter your password."
-            name=""
-            id=""
-          />
-          <br />
-          <input
-            className="px-5 py-3 bg-violet-500 text-white font-bold rounded-md border-none cursor-pointer"
-            type="submit"
-            value="Register"
-          />
-        </form>
+      <div className="hero min-h-screen bg-base-200">
+        <div className="hero-content flex-col lg:flex-row-reverse">
+          <div className="text-center lg:text-left">
+            <h1 className="text-5xl font-bold">Register now!</h1>
+            <p className="py-6">
+              Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+              excepturi exercitationem quasi. In deleniti eaque aut repudiandae
+              et a id nisi.
+            </p>
+          </div>
+          <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <div className="card-body">
+              <form onSubmit={handleRegister}>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Email</span>
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="email"
+                    name="email"
+                    className="input input-bordered"
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Password</span>
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="password"
+                    name="password"
+                    className="input input-bordered"
+                  />
+                  <label className="label">
+                    <a href="#" className="label-text-alt link link-hover">
+                      Forgot password?
+                    </a>
+                  </label>
+                </div>
+                <div className="form-control mt-6">
+                  <input
+                    type="submit"
+                    value="Register"
+                    className="btn btn-primary"
+                  />
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
