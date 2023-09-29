@@ -1,8 +1,12 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import auth from "../firebase/firebase";
 import { BiHide, BiShow } from "react-icons/bi";
 import Swal from "sweetalert2";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [registerError, setRegisterError] = useState("");
@@ -12,6 +16,8 @@ const Register = () => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
+    const terms = e.target.terms.checked;
+
     setUser("");
     setRegisterError("");
     if (password.length < 6) {
@@ -26,6 +32,12 @@ const Register = () => {
         "Password should Capital, smaller and number like mixtype password.",
         "warning"
       );
+    } else if (!terms) {
+      return Swal.fire(
+        "Error!",
+        "You must Accept our terms and condition",
+        "error"
+      );
     }
     // console.log(email, password);
 
@@ -35,18 +47,31 @@ const Register = () => {
       .then((userCredential) => {
         const creatdUser = userCredential.user;
         setUser(creatdUser);
-        Swal.fire(
-          "Congratulations!",
-          "Your account create succesful!",
-          "success"
-        );
+
+        //send email verification
+        sendEmailVerification(creatdUser)
+          .then(() => {
+            return Swal.fire(
+              "Success!",
+              "Please Check your email for verification.",
+              "success"
+            );
+          })
+          .catch((error) => {
+            console.log(error.message);
+            return Swal.fire(
+              "error",
+              "Email verification link send failed.",
+              "error"
+            );
+          });
+        Swal.fire("Success!", "Registration Successfull.", "success");
       })
       .catch((error) => {
         setRegisterError(error.message);
         Swal.fire("Error!", "Account create Fail.", "error");
       });
   };
-  console.log(user);
   return (
     <div>
       <div className="hero min-h-screen bg-base-200">
@@ -103,11 +128,12 @@ const Register = () => {
                       {showPass ? <BiHide></BiHide> : <BiShow></BiShow>}
                     </span>
                   </div>
-                  <label className="label">
-                    <a href="#" className="label-text-alt link link-hover">
-                      Forgot password?
-                    </a>
-                  </label>
+                  <div className="flex items-center gap-2 mt-5">
+                    <input type="checkbox" name="terms" id="terms" />
+                    <label htmlFor="terms">
+                      Accept Our <a href="">Terms and Condition.</a>
+                    </label>
+                  </div>
                 </div>
                 <div className="form-control mt-6">
                   <input
@@ -117,6 +143,12 @@ const Register = () => {
                   />
                 </div>
               </form>
+              <p>
+                Already have an account?{" "}
+                <Link to="/login" className="text-blue-600 font-medium">
+                  Login
+                </Link>
+              </p>
             </div>
           </div>
         </div>
