@@ -1,21 +1,50 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import auth from "../firebase/firebase";
+import { BiHide, BiShow } from "react-icons/bi";
+import Swal from "sweetalert2";
 import { useState } from "react";
+
 const Register = () => {
+  const [registerError, setRegisterError] = useState("");
   const [user, setUser] = useState(null);
+  const [showPass, setShowPass] = useState(false);
   const handleRegister = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
+    setUser("");
+    setRegisterError("");
+    if (password.length < 6) {
+      return Swal.fire(
+        "Warning!",
+        "Password should have 6 character or long.",
+        "warning"
+      );
+    } else if (!/[A-Z][a-z]+/g.test(password)) {
+      return Swal.fire(
+        "Warning!",
+        "Password should Capital, smaller and number like mixtype password.",
+        "warning"
+      );
+    }
     // console.log(email, password);
+
     // create user
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const creatdUser = userCredential.user;
         setUser(creatdUser);
+        Swal.fire(
+          "Congratulations!",
+          "Your account create succesful!",
+          "success"
+        );
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        setRegisterError(error.message);
+        Swal.fire("Error!", "Account create Fail.", "error");
+      });
   };
   console.log(user);
   return (
@@ -29,8 +58,18 @@ const Register = () => {
               excepturi exercitationem quasi. In deleniti eaque aut repudiandae
               et a id nisi.
             </p>
+            {user && (
+              <div>
+                <h2 className="text-3xl">Email: {user.email}</h2>
+                <p className="text-xl">API: {user.apiKey}</p>
+                <p className="text-xl">UID: {user.uid}</p>
+              </div>
+            )}
+            {registerError && (
+              <p className="text-red-600 text-lg">{registerError}</p>
+            )}
           </div>
-          <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+          <div className="card flex-shrink-0 w-full max-w-lg shadow-2xl bg-base-100">
             <div className="card-body">
               <form onSubmit={handleRegister}>
                 <div className="form-control">
@@ -41,6 +80,7 @@ const Register = () => {
                     type="email"
                     placeholder="email"
                     name="email"
+                    required
                     className="input input-bordered"
                   />
                 </div>
@@ -48,12 +88,21 @@ const Register = () => {
                   <label className="label">
                     <span className="label-text">Password</span>
                   </label>
-                  <input
-                    type="password"
-                    placeholder="password"
-                    name="password"
-                    className="input input-bordered"
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      type={showPass ? "text" : "password"}
+                      placeholder="password"
+                      required
+                      name="password"
+                      className="input w-full input-bordered pr-14"
+                    />
+                    <span
+                      className="absolute right-2 text-xl cursor-pointer"
+                      onClick={() => setShowPass(!showPass)}
+                    >
+                      {showPass ? <BiHide></BiHide> : <BiShow></BiShow>}
+                    </span>
+                  </div>
                   <label className="label">
                     <a href="#" className="label-text-alt link link-hover">
                       Forgot password?
